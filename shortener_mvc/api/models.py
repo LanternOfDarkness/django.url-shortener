@@ -1,6 +1,7 @@
 from django.db import models
-import hashlib
+import string
 import random
+from django.conf import settings
 
 class URL(models.Model):
     original_url = models.URLField()
@@ -21,12 +22,22 @@ class URL(models.Model):
         super().save(*args, **kwargs)
 
     def generate_short_code(self):
-        url_hash = hashlib.sha256(self.original_url.encode()).hexdigest()
-        start_index = random.randint(0, len(url_hash) - 8)
-        short_code = url_hash[start_index:start_index + 8]
-        return short_code
+        chars = string.ascii_letters + string.digits
+        shortCode = ''.join(random.choice(chars) for _ in range(7))
+        
+        while URL.objects.filter(short_code=shortCode).exists():
+            shortCode = ''.join(random.choice(chars) for _ in range(7))
+        
+        return shortCode
 
     def generate_admin_token(self):
-        salt = "my-salt-text"
-        url_hash = hashlib.sha256(salt.encode() + self.original_url.encode()).hexdigest()
-        return url_hash[:16]
+        chars = string.ascii_letters + string.digits
+        token = ''.join(random.choice(chars) for _ in range(16))
+        
+        while URL.objects.filter(admin_token=token).exists():
+            token = ''.join(random.choice(chars) for _ in range(16))
+        
+        return token
+
+    def get_absolute_url(self):
+        return f"{settings.ALLOWED_HOSTS[0]}/{self.short_code}"
