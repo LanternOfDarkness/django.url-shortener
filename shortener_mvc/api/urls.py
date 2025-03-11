@@ -22,7 +22,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('v1/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('v1/create/', views.create, name='create'),
-    path('v1/<str:admin_url>/', views.list, name='list'),
+    path('v1/<str:short_url>/', views.go_to, name='go_to'),
+    path('v1/<str:admin_url>/list', views.list, name='list'),
     path('v1/<str:admin_url>/create/', views.create, name='create'),
     path('v1/<str:admin_url>/<str:short_url>/', views.info, name='info'),
     path('v1/<str:admin_url>/<str:short_url>/stats/', views.stats, name='stats'),
